@@ -76,39 +76,18 @@ public class Hero {
         return hp > 0;
     }
 
-    /**
-     * Reduces this hero's HP by the given amount, clamped to zero.
-     *
-     * @param amount the damage to apply; must be non-negative
-     */
     public void takeDamage(int amount) {
-        hp = Math.max(0, hp - amount);
+        hp = Math.max(0, hp - Math.max(0, amount));
     }
 
-    /**
-     * Restores this hero's HP by the given amount, clamped to maxHp.
-     *
-     * @param amount the HP to restore; must be non-negative
-     */
     public void heal(int amount) {
-        hp = Math.min(maxHp, hp + amount);
+        hp = Math.min(maxHp, hp + Math.max(0, amount));
     }
 
-    /**
-     * Restores mana by the given amount, clamped to a non-negative value.
-     *
-     * @param amount the mana to restore; must be non-negative
-     */
     public void restoreMana(int amount) {
         mana += Math.max(0, amount);
     }
 
-    /**
-     * Spends the given amount of mana if available.
-     *
-     * @param amount the mana to spend; must be non-negative
-     * @return true if the mana was spent, false otherwise
-     */
     public boolean spendMana(int amount) {
         if (amount < 0 || amount > mana) {
             return false;
@@ -117,21 +96,10 @@ public class Hero {
         return true;
     }
 
-    /**
-     * Adds gold to this hero.
-     *
-     * @param amount the gold to add; must be non-negative
-     */
     public void addGold(int amount) {
         gold += Math.max(0, amount);
     }
 
-    /**
-     * Spends gold if the hero has enough.
-     *
-     * @param amount the gold to spend; must be non-negative
-     * @return true if the gold was spent, false otherwise
-     */
     public boolean spendGold(int amount) {
         if (amount < 0 || amount > gold) {
             return false;
@@ -140,32 +108,38 @@ public class Hero {
         return true;
     }
 
-    /**
-     * Replaces the hero's inventory.
-     *
-     * @param inventory the new inventory; null creates an empty inventory
-     */
     public void setInventory(Inventory inventory) {
         this.inventory = inventory == null ? new Inventory() : inventory;
     }
 
     /**
-     * Creates a memento placeholder for the hero's current state.
-     *
-     * @return a HeroMemento snapshot, or null in the scaffold
+     * Creates a memento snapshot of current state.
      */
     public HeroMemento createMemento() {
-        // TODO: capture the full mutable state into a HeroMemento.
-        return null;
+        return new HeroMemento(
+                name,
+                hp,
+                mana,
+                gold,
+                maxHp,
+                attackPower,
+                defense,
+                inventory.getArtifacts()
+        );
     }
 
     /**
-     * Restores this hero from a previously captured memento.
-     *
-     * @param memento the snapshot to restore from
+     * Restores hero state from snapshot.
      */
     public void restoreFromMemento(HeroMemento memento) {
-        // TODO: read the snapshot and restore the hero's mutable state.
+        if (memento == null) {
+            return;
+        }
+
+        this.hp = memento.getHp();
+        this.mana = memento.getMana();
+        this.gold = memento.getGold();
+        this.inventory = new Inventory(memento.getInventorySnapshot());
     }
 
     @Override
